@@ -1,10 +1,10 @@
 import express from "express";
-import * as BlogPostsController from "../controllers/blog-posts";
+import * as BlogPosts from "../controllers/blog-posts";
 
 const router = express.Router();
 
-router.get('/', BlogPostsController.getBlogPosts);
+router.get('/', BlogPosts.getBlogPosts);
 
-router.post('/', BlogPostsController.createBlogPost);
+router.post('/', BlogPosts.createBlogPost);
 
 export default router;
