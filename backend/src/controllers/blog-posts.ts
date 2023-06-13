@@ -1,5 +1,9 @@
 import { RequestHandler } from "express";
 import BlogPostModel from "../models/blog-post";
+import assertIsDefined from "../utils/assertIsDefined";
+import mongoose from "mongoose";
+import sharp from "sharp";
+import env from "../env";
 
 export const getBlogPosts: RequestHandler = async (req, res,) => {
     try {
@@ -24,9 +28,26 @@ interface BlogPostBody {
 
 export const createBlogPost: RequestHandler<unknown, unknown, BlogPostBody, unknown> = async (req, res) => {
     const { slug, title, summary, body } = req.body;
+    const featuredImage = req.file;
+
     try {
+        assertIsDefined(featuredImage);
+
+        const blogPostId = new mongoose.Types.ObjectId();
+
+        const featuredImageDestinationPath = '/uploads/featured-images/' + blogPostId + '.png';
+
+        await sharp(featuredImage.buffer)
+            .resize(700, 450)
+            .toFile('./' + featuredImageDestinationPath);
+
         const newPost = await BlogPostModel.create({
-            slug, title, summary, body
+            _id: blogPostId,
+            slug,
+            title,
+            summary,
+            body,
+            featuredImageUrl: env.SERVER_URL + featuredImageDestinationPath,
         });
 
         res.status(201).json(newPost);
